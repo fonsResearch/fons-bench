@@ -1,0 +1,92 @@
+# Per-model training cutoffs used to recompute similarity-to-training from
+# all_similarity_scores.parquet (Runs N' Poses release). Each cutoff is sourced from the
+# model's paper or repository; the citation is in the comment. `unknown` excludes the model
+# from every cutoff-dependent analysis (spec section 4.4).
+#
+# Method keys are the CSV names inside predictions.tar.gz.
+
+models:
+  af3:
+    name: AlphaFold 3
+    pdb_cutoff: 2021-09-30
+    # Abramson et al., Nature 630, 493-500 (2024), "Training regime":
+    #   "No structural data used during training were released after 30 September 2021"
+    # Training filters: AF3 ligand exclusion list (Supp. Table 9), crystallisation aids
+    # (Supp. Table 8), glycans (Supp. Table 10) excluded from evaluation ligands.
+    source: "https://doi.org/10.1038/s41586-024-07487-w"
+    filters: "AF3 ligand exclusion list; min resolved residues; clashing-chain removal"
+
+  af3_no_template:
+    name: AlphaFold 3 (templates disabled)
+    pdb_cutoff: 2021-09-30
+    # Runs N' Poses preprint v3: "AlphaFold3 was also run without templates for comparison
+    # (AF3-NT)." Same weights as af3; cutoff inherited from af3.
+    source: "https://doi.org/10.1038/s41586-024-07487-w"
+    filters: "as af3"
+
+  boltz:
+    name: Boltz-1
+    pdb_cutoff: 2021-09-30
+    # Wohlwend et al., bioRxiv 2024.11.19.624167, section 2.1:
+    #   "For training we use all PDB structures released before 2021-09-30 (same training
+    #    cut-off date as AlphaFold3) and with a resolution of at least 9A."
+    #   "we follow the same process as AlphaFold3 for data cleaning, which includes the ligand
+    #    exclusion list, the minimum number of resolved residues, and the removal of clashing chains."
+    source: "https://doi.org/10.1101/2024.11.19.624167"
+    filters: "AF3 data cleaning (ligand exclusion list, min resolved residues, clash removal); resolution <= 9 A"
+
+  boltz1x:
+    name: Boltz-1x
+    pdb_cutoff: 2021-09-30
+    # Runs N' Poses preprint v3 (bioRxiv 2025.02.03.636309v3): "Boltz-1x (v1.0.0)" run
+    # alongside Boltz-1 v0.4; "Boltz1x does not show differences in success rate compared to
+    # Boltz-1 v0.4 but has a boost in PoseBusters physical validity checks." Boltz-1x is the
+    # boltz v1.0.0 release with inference-time steering potentials; training data unchanged
+    # from Boltz-1, so the cutoff is inherited from `boltz`.
+    source: "https://github.com/jwohlwend/boltz/blob/main/docs/prediction.md"
+    filters: "as boltz"
+
+  boltz2:
+    name: Boltz-2
+    pdb_cutoff: 2023-06-01
+    # Passaro et al., bioRxiv 2025.06.14.659707, Appendix A.1.1 "PDB data":
+    #   "We use every PDB structure up to the training date cutoff of 06/01/2023."
+    #   Large complexes (>7MB or >5000 residues) removed; chains with <4 resolved residues
+    #   or only unknown residues excluded.
+    # Runs N' Poses preprint v3: "Boltz-2 (v2.0.3) has been released which was trained with
+    # a cutoff of 2023-06-01." Only RnP systems released after 2023-06-01 are post-cutoff.
+    source: "https://doi.org/10.1101/2025.06.14.659707"
+    filters: "complexes >7MB or >5000 residues removed; chains with <4 resolved residues excluded"
+
+  chai:
+    name: Chai-1
+    pdb_cutoff: 2021-01-12
+    # Chai Discovery, bioRxiv 2024.10.10.615955, section 5.2 "Data and Training":
+    #   "For PDB structures, we apply with a release date cutoff of 2021-01-12."
+    #   Templates from PDB70 with the same cutoff; preprocessing "largely follow[s]" AF3.
+    # NOTE: earlier than the 2021-09-30 cutoff the benchmark assumes; every RnP system is
+    # post-cutoff for Chai-1, and its similarity must be recomputed at 2021-01-12.
+    source: "https://doi.org/10.1101/2024.10.10.615955"
+    filters: "largely follows AF3 preprocessing; crystallisation aids removed"
+
+  protenix:
+    name: Protenix (v0.5.0 weights)
+    pdb_cutoff: 2021-09-30
+    # bytedance/Protenix README model table, protenix_base_default_v0.5.0 and v1.0.0:
+    #   "Training Data Cutoff: 2021-09-30"
+    # Which weight version RnP ran is recorded in versions.txt of the RnP repo (see datasets.yaml).
+    source: "https://github.com/bytedance/Protenix/blob/main/README.md"
+    filters: "not stated beyond AF3-style pipeline"
+
+  rfaa:
+    name: RoseTTAFold All-Atom
+    pdb_cutoff: unknown
+    # Krishna et al., Science 384, eadl2528 (2024) and the bioRxiv full text (2023.10.09.561603)
+    # do not state a release-date cutoff for the protein-small-molecule training set; the
+    # "Training RFAA" section only says the PDB was curated with solvents/additives removed.
+    # The RFAA install ships a pdb100_2021Mar03 template database, which is a template
+    # cutoff, not a training cutoff. Per spec 4.4 this is `unknown`: rfaa is excluded from
+    # every cutoff-dependent (after_cutoff / *_cutoff) analysis. It also has no seeds,
+    # samples, ranking score or ipTM in the RnP release (single deterministic run).
+    source: "https://doi.org/10.1126/science.adl2528"
+    filters: "solvents and crystallisation additives removed"

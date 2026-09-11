@@ -1,0 +1,9 @@
+# Similarity bin edges (Runs N' Poses similarity scale is 0-100).
+# Starting edges; revised after inspecting the cutoff-specific distributions (Gate 1 report).
+# Bins with fewer than `min_systems` systems are merged with their neighbour and the merge is
+# reported, never hidden.
+min_systems: 100
+ligand:            # morgan_tanimoto_cutoff, max ECFP4 Tanimoto to any pre-cutoff ligand
+  edges: [0, 30, 50, 70, 100]
+pocket:            # sucos_shape_pocket_qcov_cutoff, SuCOS-pocket similarity to closest pre-cutoff system
+  edges: [0, 30, 60, 90, 100]

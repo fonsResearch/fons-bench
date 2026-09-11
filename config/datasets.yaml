@@ -1,0 +1,52 @@
+# Data sources for the master table. Everything is fetched into data/raw/ and never modified
+# in place. sha256 recorded at fetch time; scripts/01_fetch_data.py verifies them.
+
+runs_n_poses:
+  description: >
+    Runs N' Poses (plinder-org). 2,600 protein-ligand systems released after 2021-09-30,
+    with precomputed predictions for AF3, AF3-no-template, Boltz-1, Boltz-1x, Boltz-2,
+    Chai-1, Protenix; PoseBusters checks; similarity annotations against the PDB.
+  citation: "Skrhak et al., 'Have protein-ligand co-folding methods moved beyond memorisation?', bioRxiv 2025.02.03.636309"
+  doi: 10.5281/zenodo.14794785
+  repo: https://github.com/plinder-org/runs-n-poses
+  primary_url: https://zenodo.org/records/18366081   # latest version of concept DOI 10.5281/zenodo.14794785, published 2026-01-25
+  zenodo_record: 18366081
+  # Zenodo returned HTTP 504 for ~3 h on 2026-09-10, then 404 for the original record's file
+  # URLs: the concept DOI now resolves to record 18366081. All files below were fetched from
+  # that record and their md5 matched Zenodo's manifest. The mirror below (47 GB tar.gz)
+  # contains only annotations, inputs, ground_truth and msa_files, NOT the prediction CSVs.
+  # prediction_files.tar.gz (39.5 GB, predicted structures) and msa_files.tar.gz (46 GB)
+  # were not fetched.
+  # AF3 rows are subject to Google's AlphaFold 3 Output Terms of Use (non-commercial);
+  # see data/raw/runs_n_poses/OUTPUT_TERMS_OF_USE.md.
+  mirror_url: https://huggingface.co/datasets/THU-ATOM/runs-n-poses/resolve/main/runs-n-poses.tar.gz
+  local_dir: data/raw/runs_n_poses
+  files:
+    annotations.csv:
+      sha256: 259aa0a8f5ea6008d4036886f1ad5ae255689c223eb839fa1a2e7cb54adae609
+      fetched: 2026-09-10
+      source: zenodo
+    inputs.json:
+      sha256: 85ded25555c1efba0aeb7dc90df2fbf24d9550f390ed3e8ac9b32cf11a0ede4d
+      fetched: 2026-09-10
+      source: zenodo
+    predictions.tar.gz:
+      sha256: c4eaeec2d5cf7594325822127e8c014237611ba428750d7670bcb23608a82749
+    posebusters_results.tar.gz:
+      sha256: 62bc162c330d4f7d00167a790fdafc993cb7dfb999dc98d18217768208e105a0
+    all_similarity_scores.parquet:
+      sha256: ce771a2439a91210b7e4ebd09a729fb75d95b6c8265f4f38bae95913f4016804
+    ground_truth.tar.gz:
+      sha256: 1b9f778bc3150f246c0f37b48215588c48369e39e6603c2b15975f0ec1b18d51
+                          # repo's examples/ folder (one system, 100 poses)
+    msa_files.tar.gz:
+      sha256: null        # not needed; no inference is run
+
+posebusters_benchmark_set:
+  description: PoseBusters benchmark set (Buttenschoen et al. 2024), 428 systems. Used only for the section-11 first-row exercise; not part of revised Phase 1.
+  doi: 10.5281/zenodo.8278563
+  mirror_url: https://huggingface.co/datasets/BioinfoMachineLearning/posebusters_benchmark
+  local_dir: data/raw
+  files:
+    posebusters_benchmark_set.tar.gz:
+      sha256: null        # 1,933,390,665 bytes, size matches mirror listing
